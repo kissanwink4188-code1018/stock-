@@ -6,14 +6,19 @@ import {
   DEFAULT_STITCH_SCREEN_ID,
 } from "@/lib/stitchDefaults";
 import { equidashMutedText, equidashPanelHigh } from "@/lib/equidashTheme";
+import { isStaticExport, withBasePath } from "@/lib/site";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-const iframeSrc = `/api/stitch/html?projectId=${encodeURIComponent(DEFAULT_STITCH_PROJECT_ID)}&screenId=${encodeURIComponent(DEFAULT_STITCH_SCREEN_ID)}`;
+const apiIframeSrc = `/api/stitch/html?projectId=${encodeURIComponent(DEFAULT_STITCH_PROJECT_ID)}&screenId=${encodeURIComponent(DEFAULT_STITCH_SCREEN_ID)}`;
 const viewHref = `/design/view?projectId=${encodeURIComponent(DEFAULT_STITCH_PROJECT_ID)}&screenId=${encodeURIComponent(DEFAULT_STITCH_SCREEN_ID)}&title=${encodeURIComponent("EquiDash Stock Dashboard")}`;
 
 export function StitchHomePreview() {
   const [iframeError, setIframeError] = useState(false);
+  const iframeSrc = useMemo(
+    () => (isStaticExport ? withBasePath("/stitch/equidash.html") : apiIframeSrc),
+    [],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -27,7 +32,7 @@ export function StitchHomePreview() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [iframeSrc]);
 
   return (
     <section className={`overflow-hidden ${equidashPanelHigh} border-secondary/30`}>
@@ -41,12 +46,14 @@ export function StitchHomePreview() {
             </p>
           </div>
         </div>
-        <Link
-          href={viewHref}
-          className="rounded-lg bg-secondary px-3 py-2 text-xs font-bold text-on-secondary hover:bg-secondary/90"
-        >
-          전체 화면
-        </Link>
+        {!isStaticExport && (
+          <Link
+            href={viewHref}
+            className="rounded-lg bg-secondary px-3 py-2 text-xs font-bold text-on-secondary hover:bg-secondary/90"
+          >
+            전체 화면
+          </Link>
+        )}
       </div>
 
       {!iframeError ? (
@@ -62,9 +69,11 @@ export function StitchHomePreview() {
           <p className="text-sm text-on-surface-variant">
             Stitch HTML을 불러오지 못했습니다. `.env.local`의 `STITCH_API_KEY`와 개발 서버를 확인해주세요.
           </p>
-          <Link href="/design" className="text-sm text-secondary underline-offset-2 hover:underline">
-            Stitch 디자인 페이지로 이동
-          </Link>
+          {!isStaticExport && (
+            <Link href="/design" className="text-sm text-secondary underline-offset-2 hover:underline">
+              Stitch 디자인 페이지로 이동
+            </Link>
+          )}
         </div>
       )}
     </section>

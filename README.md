@@ -107,9 +107,24 @@ git push -u origin main
 
 이후 `main` 브랜치에 push할 때마다 자동으로 재배포됩니다.
 
-### 8-3. GitHub Actions (CI)
+### 8-3. GitHub Pages (웹 화면 배포)
 
-`.github/workflows/ci.yml` — push 시 `npm test`, `npm run build`를 실행합니다.
+저장소 **Settings → Pages → Build and deployment → GitHub Actions** 로 설정하면 `main` push 시 앱 UI가 배포됩니다.
+
+- **접속 URL:** https://kissanwink4188-code1018.github.io/stock-/
+- GitHub Pages는 **정적 호스팅**이라 Finnhub 실시간 API는 동작하지 않고, **상위 50종 검색 + 샘플 시세·뉴스 + Stitch HTML 미리보기**가 표시됩니다.
+- 실시간 API가 필요하면 Vercel 배포(8-2) 또는 로컬 `npm run dev`를 사용하세요.
+
+로컬에서 Pages 빌드 확인:
+
+```bash
+npm run build:pages
+```
+
+### 8-4. GitHub Actions (CI)
+
+`.github/workflows/ci.yml` — push 시 `npm test`, `npm run build`를 실행합니다.  
+`.github/workflows/deploy-pages.yml` — GitHub Pages 배포.
 
 ---
 

@@ -4,6 +4,12 @@ import { MaterialIcon } from "@/components/equidash/MaterialIcon";
 import { NewsList } from "@/components/NewsList";
 import { StockPriceCard } from "@/components/StockPriceCard";
 import { changeIconName, changeTextClass, getChangeTone } from "@/lib/equidashTheme";
+import {
+  clientFetchNews,
+  clientFetchStock,
+  clientSearchStocks,
+  usesClientApi,
+} from "@/lib/clientApi";
 import { getAllTopUsStockResults, searchTopUsStocks } from "@/lib/koreanPopularStocks";
 import { formatDecimal } from "@/lib/stockUtils";
 import type { ApiErrorBody, NewsPayload, SearchPayload, SearchResultItem, StockQuotePayload } from "@/lib/types";
@@ -52,36 +58,51 @@ export function StockSearchForm() {
     setNews(null);
 
     try {
-      const stockUrl = `/api/stock?symbol=${encodeURIComponent(symbol)}`;
-      const newsUrl = `/api/news?symbol=${encodeURIComponent(symbol)}`;
-
-      const [stockRes, newsRes] = await Promise.all([fetch(stockUrl), fetch(newsUrl)]);
-      const [stockData, newsData] = await Promise.all([
-        parseResponse<StockQuotePayload>(stockRes),
-        parseResponse<NewsPayload>(newsRes),
-      ]);
-
-      const errors: string[] = [];
-
-      if (!stockRes.ok && isErrorBody(stockData)) {
-        errors.push(stockData.error);
-      } else if (isErrorBody(stockData)) {
-        errors.push(stockData.error);
-      } else {
+      if (usesClientApi()) {
+        const [stockData, newsData] = await Promise.all([
+          clientFetchStock(symbol),
+          clientFetchNews(symbol),
+        ]);
         setStock(stockData);
-      }
-
-      if (!newsRes.ok && isErrorBody(newsData)) {
-        errors.push(newsData.error);
-      } else if (isErrorBody(newsData)) {
-        errors.push(newsData.error);
-      } else {
         setNews(newsData);
-      }
+        if (stockData.isFallback || newsData.isFallback) {
+          setMessage(
+            "GitHub Pages 데모: 샘플 시세·뉴스입니다. 실시간 데이터는 로컬 npm run dev 또는 Vercel 배포를 사용하세요.",
+          );
+          setDismissedBanner(false);
+        }
+      } else {
+        const stockUrl = `/api/stock?symbol=${encodeURIComponent(symbol)}`;
+        const newsUrl = `/api/news?symbol=${encodeURIComponent(symbol)}`;
 
-      if (errors.length > 0) {
-        setMessage(errors.join(" "));
-        setDismissedBanner(false);
+        const [stockRes, newsRes] = await Promise.all([fetch(stockUrl), fetch(newsUrl)]);
+        const [stockData, newsData] = await Promise.all([
+          parseResponse<StockQuotePayload>(stockRes),
+          parseResponse<NewsPayload>(newsRes),
+        ]);
+
+        const errors: string[] = [];
+
+        if (!stockRes.ok && isErrorBody(stockData)) {
+          errors.push(stockData.error);
+        } else if (isErrorBody(stockData)) {
+          errors.push(stockData.error);
+        } else {
+          setStock(stockData);
+        }
+
+        if (!newsRes.ok && isErrorBody(newsData)) {
+          errors.push(newsData.error);
+        } else if (isErrorBody(newsData)) {
+          errors.push(newsData.error);
+        } else {
+          setNews(newsData);
+        }
+
+        if (errors.length > 0) {
+          setMessage(errors.join(" "));
+          setDismissedBanner(false);
+        }
       }
     } catch {
       setMessage("조회 요청에 실패했습니다. 네트워크를 확인해주세요.");
@@ -114,6 +135,16 @@ export function StockSearchForm() {
     setHasSearched(true);
     setSearchLoading(true);
     try {
+      if (usesClientApi()) {
+        const payload = await clientSearchStocks(q);
+        setSearchResults(payload.results);
+        if (payload.results.length === 0) {
+          setMessage("검색 결과가 없습니다. 다른 키워드를 시도해주세요.");
+          setDismissedBanner(false);
+        }
+        return;
+      }
+
       const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
       const data = await parseResponse<SearchPayload>(res);
 
