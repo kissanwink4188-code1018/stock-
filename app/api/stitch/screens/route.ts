@@ -1,4 +1,4 @@
-import { listStitchScreens, StitchConfigError } from "@/lib/stitch";
+import { listStitchScreens, parseScreenIdFromName, StitchConfigError } from "@/lib/stitch";
 import type { ApiErrorBody } from "@/lib/types";
 import { NextResponse } from "next/server";
 
@@ -31,7 +31,7 @@ export async function GET(req: Request): Promise<NextResponse<StitchScreensPaylo
     return NextResponse.json({
       projectId,
       screens: screens.map((s) => ({
-        id: s.name.split("/screens/")[1] ?? s.name,
+        id: parseScreenIdFromName(s.name),
         title: s.title,
         screenshotUrl: s.screenshot?.downloadUrl ?? null,
         htmlAvailable: Boolean(s.htmlCode?.downloadUrl),

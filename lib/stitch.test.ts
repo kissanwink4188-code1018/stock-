@@ -3,6 +3,7 @@ import {
   findStitchScreenById,
   parseProjectIdFromName,
   parseScreenIdFromName,
+  parseToolCallListPayload,
   parseToolCallPayload,
   type StitchScreenSummary,
 } from "@/lib/stitch";
@@ -58,5 +59,37 @@ describe("parseToolCallPayload", () => {
 
   it("returns null for invalid JSON", () => {
     expect(parseToolCallPayload({ content: [{ type: "text", text: "not-json" }] })).toBeNull();
+  });
+});
+
+describe("parseToolCallListPayload", () => {
+  it("coerces a bare screens array", () => {
+    const payload = parseToolCallListPayload<{ screens: Array<{ title: string }> }>(
+      {
+        content: [
+          {
+            type: "text",
+            text: '[{"title":"EquiDash","name":"projects/1/screens/a"}]',
+          },
+        ],
+      },
+      "screens",
+    );
+    expect(payload?.screens[0]?.title).toBe("EquiDash");
+  });
+
+  it("parses JSON embedded in markdown fences", () => {
+    const payload = parseToolCallListPayload<{ projects: Array<{ title: string }> }>(
+      {
+        content: [
+          {
+            type: "text",
+            text: 'Here:\n```json\n{"projects":[{"title":"US Stock"}]}\n```',
+          },
+        ],
+      },
+      "projects",
+    );
+    expect(payload?.projects[0]?.title).toBe("US Stock");
   });
 });

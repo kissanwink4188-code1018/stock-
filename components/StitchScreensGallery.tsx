@@ -9,6 +9,7 @@ import {
   equidashPanel,
   equidashPanelHigh,
 } from "@/lib/equidashTheme";
+import { pickPreferredStitchProject } from "@/lib/stitchDefaults";
 import type { ApiErrorBody } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
@@ -103,10 +104,10 @@ export function StitchScreensGallery({ autoOpenFirstScreen = false }: Props) {
         }
 
         setProjects(data.projects);
-        const first = data.projects[0];
-        if (first) {
-          setSelectedProjectId(first.id);
-          void loadScreens(first.id, { autoNavigate: autoOpenFirstScreen });
+        const preferred = pickPreferredStitchProject(data.projects);
+        if (preferred) {
+          setSelectedProjectId(preferred.id);
+          void loadScreens(preferred.id, { autoNavigate: autoOpenFirstScreen });
         } else {
           setMessage("Stitch 프로젝트가 없습니다.");
         }

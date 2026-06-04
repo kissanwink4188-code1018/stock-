@@ -56,27 +56,119 @@ export function findStitchScreenById(
   return screens.find((s) => parseScreenIdFromName(s.name) === screenId);
 }
 
-export function parseToolCallPayload<T>(result: McpToolCallResult | undefined): T | null {
-  if (!result) return null;
-
-  if (result.structuredContent && typeof result.structuredContent === "object") {
-    return result.structuredContent as T;
-  }
-
-  const text = result.content?.find((c) => c.type === "text")?.text;
-  if (!text) return null;
+function tryParseJson(text: string): unknown | null {
+  const trimmed = text.trim();
+  if (!trimmed) return null;
 
   try {
-    return JSON.parse(text) as T;
+    return JSON.parse(trimmed) as unknown;
   } catch {
+    const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
+    if (fenced?.[1]) {
+      try {
+        return JSON.parse(fenced[1].trim()) as unknown;
+      } catch {
+        return null;
+      }
+    }
+    const start = trimmed.indexOf("{");
+    const end = trimmed.lastIndexOf("}");
+    if (start >= 0 && end > start) {
+      try {
+        return JSON.parse(trimmed.slice(start, end + 1)) as unknown;
+      } catch {
+        return null;
+      }
+    }
     return null;
   }
 }
 
-export async function callStitchTool<T>(
+function coerceListPayload<T extends Record<string, unknown>>(
+  raw: unknown,
+  listKey: keyof T & string,
+): T | null {
+  if (raw == null) return null;
+
+  if (Array.isArray(raw)) {
+    return { [listKey]: raw } as T;
+  }
+
+  if (typeof raw !== "object") return null;
+
+  const obj = raw as Record<string, unknown>;
+  if (Array.isArray(obj[listKey])) return obj as T;
+
+  const data = obj.data;
+  if (data && typeof data === "object") {
+    const nested = data as Record<string, unknown>;
+    if (Array.isArray(nested[listKey])) {
+      return { [listKey]: nested[listKey] } as T;
+    }
+  }
+
+  const result = obj.result;
+  if (result && typeof result === "object") {
+    const nested = result as Record<string, unknown>;
+    if (Array.isArray(nested[listKey])) {
+      return { [listKey]: nested[listKey] } as T;
+    }
+  }
+
+  return null;
+}
+
+export function parseToolCallPayload<T>(result: McpToolCallResult | undefined): T | null {
+  if (!result) return null;
+
+  const candidates: unknown[] = [];
+  if (result.structuredContent != null) candidates.push(result.structuredContent);
+
+  for (const block of result.content ?? []) {
+    if (block.type === "text" && block.text) {
+      const parsed = tryParseJson(block.text);
+      if (parsed != null) candidates.push(parsed);
+    }
+  }
+
+  for (const raw of candidates) {
+    if (raw && typeof raw === "object") {
+      return raw as T;
+    }
+  }
+
+  return null;
+}
+
+export function parseToolCallListPayload<T extends Record<string, unknown>>(
+  result: McpToolCallResult | undefined,
+  listKey: keyof T & string,
+): T | null {
+  const direct = parseToolCallPayload<T>(result);
+  if (direct && Array.isArray(direct[listKey])) return direct;
+
+  if (!result) return null;
+  const candidates: unknown[] = [];
+  if (result.structuredContent != null) candidates.push(result.structuredContent);
+  for (const block of result.content ?? []) {
+    if (block.type === "text" && block.text) {
+      const parsed = tryParseJson(block.text);
+      if (parsed != null) candidates.push(parsed);
+    }
+  }
+
+  for (const raw of candidates) {
+    const coerced = coerceListPayload<T>(raw, listKey);
+    if (coerced) return coerced;
+  }
+
+  return null;
+}
+
+async function invokeStitchToolRaw(
   toolName: string,
   args: Record<string, unknown>,
-): Promise<T> {
+): Promise<McpToolCallResult | undefined> {
   const apiKey = process.env.STITCH_API_KEY?.trim();
   if (!apiKey) {
     throw new StitchConfigError(
@@ -104,29 +196,68 @@ export async function callStitchTool<T>(
   }
 
   const data = (await res.json()) as McpRpcResponse;
-
   if (data.error?.message) {
     throw new Error(data.error.message);
   }
 
-  const parsed = parseToolCallPayload<T>(data.result);
+  return data.result;
+}
+
+async function callStitchListTool<T extends Record<string, unknown>>(
+  toolName: string,
+  listKey: keyof T & string,
+  args: Record<string, unknown>,
+): Promise<T> {
+  const result = await invokeStitchToolRaw(toolName, args);
+  const parsed = parseToolCallListPayload<T>(result, listKey);
   if (!parsed) {
     throw new Error(`Stitch tool "${toolName}" 응답을 해석할 수 없습니다.`);
   }
+  return parsed;
+}
 
+export async function callStitchTool<T>(
+  toolName: string,
+  args: Record<string, unknown>,
+): Promise<T> {
+  const result = await invokeStitchToolRaw(toolName, args);
+  const parsed = parseToolCallPayload<T>(result);
+  if (!parsed) {
+    throw new Error(`Stitch tool "${toolName}" 응답을 해석할 수 없습니다.`);
+  }
   return parsed;
 }
 
 export async function listStitchProjects(): Promise<StitchProjectSummary[]> {
-  const data = await callStitchTool<{ projects?: StitchProjectSummary[] }>("list_projects", {});
+  const data = await callStitchListTool<{ projects?: StitchProjectSummary[] }>(
+    "list_projects",
+    "projects",
+    {},
+  );
   return data.projects ?? [];
 }
 
 export async function listStitchScreens(projectId: string): Promise<StitchScreenSummary[]> {
-  const data = await callStitchTool<{ screens?: StitchScreenSummary[] }>("list_screens", {
-    projectId,
-  });
-  return data.screens ?? [];
+  const argVariants: Record<string, unknown>[] = [
+    { projectId },
+    { project_id: projectId },
+  ];
+
+  let lastError: Error | null = null;
+  for (const args of argVariants) {
+    try {
+      const data = await callStitchListTool<{ screens?: StitchScreenSummary[] }>(
+        "list_screens",
+        "screens",
+        args,
+      );
+      return data.screens ?? [];
+    } catch (e) {
+      lastError = e instanceof Error ? e : new Error(String(e));
+    }
+  }
+
+  throw lastError ?? new Error("Stitch list_screens 호출에 실패했습니다.");
 }
 
 export async function fetchStitchScreenHtml(

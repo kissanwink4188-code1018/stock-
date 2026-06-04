@@ -2,7 +2,7 @@
 
 ## 1. 프로젝트 소개
 
-Next.js App Router 기반의 **학습용** 미국 주식 정보 대시보드입니다. 메인 UI는 Google **Stitch**에서 생성한 EquiDash 디자인(다크 터미널 테마)과 통합되어 있습니다. 사용자가 회사명·티커 키워드로 종목을 검색하고, 선택한 티커에 대해 Finnhub API로 **주가 요약**과 **최근 뉴스(최대 5건, 최근 30일)**를 조회해 카드 형태로 보여줍니다. API 키는 서버 Route에서만 사용하며 클라이언트에 노출되지 않습니다.
+Next.js App Router 기반의 **학습용** 미국 주식 정보 대시보드입니다. 메인 UI는 Google **Stitch**에서 생성한 EquiDash 디자인(다크 터미널 테마)과 통합되어 있습니다. 사용자가 회사명·티커 키워드로 종목을 검색하고, 선택한 티커에 대해 Finnhub API로 **주가 요약**과 **최근 뉴스(최대 50건, 최근 30일)**를 조회해 카드 형태로 보여줍니다. API 키는 서버 Route에서만 사용하며 클라이언트에 노출되지 않습니다.
 
 ## 2. 실행 방법
 
@@ -41,7 +41,7 @@ STITCH_API_KEY=여기에_Stitch_API_키
 
 - **종목 검색**: 서버 Route `GET /api/search?q=` — Finnhub Symbol Search(미국 일반 주식 위주로 필터) 후 목록에서 티커 선택
 - **주가 조회**: `GET /api/stock?symbol=` — Quote API 기반, 전일 대비·등락률은 서버에서 `현재가 - 전일종가`, `전일 대비 / 전일종가 × 100` 으로 계산
-- **뉴스 조회**: `GET /api/news?symbol=` — Company News API, 최근 30일·최대 5건
+- **뉴스 조회**: `GET /api/news?symbol=` — Company News API, 최근 30일·최대 50건
 - **오류·빈 입력 처리**: 검색어/티커 미입력, API 키 누락(503 및 안내), 네트워크 오류 시에도 UI 유지
 - **Fallback**: Finnhub 호출 실패 시 `data/sampleData.ts` 기반 샘플 데이터 반환(`isFallback: true`)
 - **로딩 표시**: 검색·조회 중 버튼 문구 및 카드 영역 로딩 문구
