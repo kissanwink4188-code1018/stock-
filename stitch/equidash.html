@@ -1,0 +1,376 @@
+﻿<!DOCTYPE html><html class="dark" lang="ko"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>EquiDash - Institutional Market Terminal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .shimmer {
+            background: linear-gradient(90deg, #122131 25%, #1c2b3c 50%, #122131 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite linear;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #051424; }
+        ::-webkit-scrollbar-thumb { background: #45464d; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #909097; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-primary-fixed": "#131b2e",
+                      "error": "#ffb4ab",
+                      "surface-bright": "#2c3a4c",
+                      "secondary-fixed": "#6ffbbe",
+                      "surface-container": "#122131",
+                      "secondary": "#4edea3",
+                      "on-tertiary-fixed": "#410004",
+                      "outline": "#909097",
+                      "on-secondary-container": "#00311f",
+                      "on-surface": "#d4e4fa",
+                      "on-surface-variant": "#c6c6cd",
+                      "primary-fixed-dim": "#bec6e0",
+                      "surface": "#051424",
+                      "tertiary-container": "#390003",
+                      "primary-fixed": "#dae2fd",
+                      "outline-variant": "#45464d",
+                      "on-tertiary-container": "#eb4141",
+                      "on-secondary": "#003824",
+                      "on-secondary-fixed-variant": "#005236",
+                      "primary-container": "#0f172a",
+                      "on-background": "#d4e4fa",
+                      "inverse-primary": "#565e74",
+                      "surface-container-low": "#0d1c2d",
+                      "on-primary-container": "#798098",
+                      "on-tertiary-fixed-variant": "#930013",
+                      "background": "#051424",
+                      "secondary-fixed-dim": "#4edea3",
+                      "tertiary": "#ffb3ad",
+                      "on-error-container": "#ffdad6",
+                      "secondary-container": "#00a572",
+                      "surface-tint": "#bec6e0",
+                      "primary": "#bec6e0",
+                      "surface-container-highest": "#273647",
+                      "tertiary-fixed": "#ffdad7",
+                      "inverse-on-surface": "#233143",
+                      "surface-dim": "#051424",
+                      "surface-container-high": "#1c2b3c",
+                      "on-secondary-fixed": "#002113",
+                      "tertiary-fixed-dim": "#ffb3ad",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "surface-container-lowest": "#010f1f",
+                      "on-error": "#690005",
+                      "error-container": "#93000a",
+                      "inverse-surface": "#d4e4fa",
+                      "on-primary": "#283044",
+                      "surface-variant": "#273647",
+                      "on-tertiary": "#68000a"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "gutter": "16px",
+                      "max-width": "1440px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "32px",
+                      "base": "4px"
+              },
+              "fontFamily": {
+                      "body-lg": ["Inter"],
+                      "ticker-lg": ["JetBrains Mono"],
+                      "body-sm": ["Inter"],
+                      "display-lg": ["Inter"],
+                      "label-caps": ["Inter"],
+                      "headline-sm": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "ticker-sm": ["JetBrains Mono"]
+              },
+              "fontSize": {
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "ticker-lg": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.08em", "fontWeight": "700"}],
+                      "headline-sm": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "ticker-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-lg overflow-hidden">
+<!-- TopNavBar -->
+<header class="bg-surface-container border-b border-outline-variant flex justify-between items-center px-gutter h-16 w-full z-50 fixed top-0 left-0">
+<div class="flex items-center gap-8">
+<h1 class="font-ticker-lg text-ticker-lg text-secondary">EquiDash</h1>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-primary border-b-2 border-primary pb-1 font-body-lg text-body-lg cursor-pointer active:opacity-80" href="#">시장</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-lg text-body-lg cursor-pointer active:opacity-80" href="#">관심종목</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-lg text-body-lg cursor-pointer active:opacity-80" href="#">스크리너</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-lg text-body-lg cursor-pointer active:opacity-80" href="#">포트폴리오</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer" data-icon="notifications">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer" data-icon="settings">settings</button>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="A professional close-up of a user profile avatar placeholder in a sleek digital finance interface. The lighting is soft and neutral, fitting a modern dark-themed dashboard palette of deep navies and cool grays. The overall mood is sophisticated and minimal, typical of a high-end trading platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCg0womMZvZ9LaSwOd-F5yJFzusWFY64zA4lfdDcjB-AI5h8nkQ7X-XnQWsQPtNO3Yym8sbovLqH__LiVJzMe45MuJ8R3sZkiFZeCTPPLeMts2zoGgYbFgc67sIqqZiR-jYL8ofIQhV3OtziIlnK6mmejubKllKNB9Ewbuzm7cK8je7foLuJtJi-gxXkc09KC2vkUhL9JHx5xJBhVSprJu9q9ZCqH461EVc5Tq8XOTj-QLz4HNX6sXNSNFFYx2ND4CJv_x6W_9Hp9c">
+</div>
+</div>
+</header>
+<!-- App Shell Container -->
+<div class="flex pt-16 h-screen">
+<!-- SideNavBar -->
+<aside class="bg-surface-container-low border-r border-outline-variant hidden md:flex flex-col h-full py-4 w-64 flex-shrink-0">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-container" data-icon="dashboard">dashboard</span>
+</div>
+<div>
+<div class="font-ticker-sm text-ticker-sm text-on-surface">Market Terminal</div>
+<div class="text-[10px] text-secondary flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
+                            Live Connection
+                        </div>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-secondary font-bold font-body-sm text-body-sm hover:bg-surface-container-highest transition-colors cursor-pointer active:scale-95 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                    Overview
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant font-body-sm text-body-sm hover:bg-surface-container-highest transition-colors cursor-pointer active:scale-95 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance">account_balance</span>
+                    Financials
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant font-body-sm text-body-sm hover:bg-surface-container-highest transition-colors cursor-pointer active:scale-95 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+                    Analysis
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant font-body-sm text-body-sm hover:bg-surface-container-highest transition-colors cursor-pointer active:scale-95 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="newspaper">newspaper</span>
+                    News
+                </a>
+</nav>
+<div class="px-4 mt-auto space-y-4">
+<button class="w-full py-2 bg-secondary-container text-on-secondary-container font-bold text-body-sm rounded-lg hover:opacity-90 transition-opacity">프로 업그레이드</button>
+<div class="pt-4 border-t border-outline-variant">
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant font-body-sm text-body-sm hover:bg-surface-container-highest transition-colors cursor-pointer active:scale-95 rounded-lg" href="#"><span class="material-symbols-outlined" data-icon="help">help</span>도움말</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant font-body-sm text-body-sm hover:bg-surface-container-highest transition-colors cursor-pointer active:scale-95 rounded-lg" href="#"><span class="material-symbols-outlined" data-icon="logout">logout</span>로그아웃</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 overflow-y-auto p-gutter relative">
+<!-- Error Banner -->
+<div class="mb-gutter bg-error-container text-on-error-container px-4 py-3 rounded-lg flex items-center justify-between animate-in fade-in slide-in-from-top duration-300" id="error-banner">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined" data-icon="warning">warning</span>
+<span class="font-body-sm text-body-sm">API 키가 필요합니다. 데이터를 실시간으로 가져오려면 계정 설정을 확인하세요.</span>
+</div>
+<button class="material-symbols-outlined cursor-pointer hover:bg-on-error-container/10 p-1 rounded" onclick="document.getElementById('error-banner').remove()">close</button>
+</div>
+<!-- Search Section -->
+<div class="flex flex-col md:flex-row gap-4 mb-8">
+<div class="flex-1 relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+<input class="w-full bg-surface-container-high border border-outline-variant text-on-surface pl-12 pr-4 py-3 rounded-lg focus:ring-1 focus:ring-secondary focus:border-secondary outline-none transition-all placeholder:text-outline font-body-lg" placeholder="미국 주식 검색 (티커 또는 종목명)" type="text">
+</div>
+<button class="bg-secondary text-on-secondary px-8 py-3 rounded-lg font-bold font-body-lg hover:bg-secondary/90 transition-colors active:scale-95">검색</button>
+</div>
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Left Column: Quote & Chart (Bento Style) -->
+<div class="col-span-12 lg:col-span-8 space-y-gutter">
+<!-- Market Overview Tickers -->
+<section class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+<div class="bg-surface-container p-4 rounded-lg border border-outline-variant hover:border-secondary transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<span class="font-ticker-sm text-ticker-sm text-on-surface-variant group-hover:text-on-surface">AAPL</span>
+<span class="text-secondary material-symbols-outlined text-sm" data-icon="trending_up">trending_up</span>
+</div>
+<div class="text-on-surface font-ticker-lg text-ticker-lg">$192.42</div>
+<div class="text-secondary text-xs font-bold">+1.24%</div>
+</div>
+<div class="bg-surface-container p-4 rounded-lg border border-outline-variant hover:border-secondary transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<span class="font-ticker-sm text-ticker-sm text-on-surface-variant group-hover:text-on-surface">TSLA</span>
+<span class="text-error material-symbols-outlined text-sm" data-icon="trending_down">trending_down</span>
+</div>
+<div class="text-on-surface font-ticker-lg text-ticker-lg">$238.15</div>
+<div class="text-error text-xs font-bold">-0.85%</div>
+</div>
+<div class="bg-surface-container p-4 rounded-lg border border-outline-variant hover:border-secondary transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<span class="font-ticker-sm text-ticker-sm text-on-surface-variant group-hover:text-on-surface">NVDA</span>
+<span class="text-secondary material-symbols-outlined text-sm" data-icon="trending_up">trending_up</span>
+</div>
+<div class="text-on-surface font-ticker-lg text-ticker-lg">$485.35</div>
+<div class="text-secondary text-xs font-bold">+2.41%</div>
+</div>
+<div class="bg-surface-container p-4 rounded-lg border border-outline-variant hover:border-secondary transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<span class="font-ticker-sm text-ticker-sm text-on-surface-variant group-hover:text-on-surface">MSFT</span>
+<span class="text-secondary material-symbols-outlined text-sm" data-icon="trending_up">trending_up</span>
+</div>
+<div class="text-on-surface font-ticker-lg text-ticker-lg">$374.02</div>
+<div class="text-secondary text-xs font-bold">+0.15%</div>
+</div>
+</section>
+<!-- Quote Detail Area (Loading State & Main Quote) -->
+<div class="bg-surface-container-high rounded-xl border border-outline-variant p-gutter overflow-hidden min-h-[400px] flex flex-col">
+<!-- Header of Quote -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+<div>
+<h2 class="text-secondary font-label-caps tracking-widest mb-1">실시간 주가</h2>
+<div class="flex items-baseline gap-3">
+<span class="font-display-lg text-display-lg text-on-surface">AAPL</span>
+<span class="text-on-surface-variant font-headline-sm">애플</span>
+</div>
+</div>
+<div class="text-right">
+<div class="text-display-lg font-ticker-lg text-on-surface leading-tight">$192.42</div>
+<div class="flex items-center justify-end gap-2 text-secondary font-bold">
+<span class="material-symbols-outlined" data-icon="arrow_drop_up">arrow_drop_up</span>
+<span class="">+$2.36 (1.24%)</span>
+</div>
+</div>
+</div>
+<!-- Chart Placeholder with shimmer for Loading State Demo -->
+<div class="flex-1 bg-surface-container-lowest rounded-lg border border-outline-variant/30 flex items-center justify-center relative overflow-hidden group">
+<!-- Mimicking the loading state overlay -->
+<div class="absolute inset-0 bg-surface-container-lowest z-10 flex flex-col items-center justify-center gap-4 transition-opacity duration-500 opacity-0 pointer-events-none" id="loading-overlay">
+<div class="w-12 h-12 border-4 border-secondary/20 border-t-secondary rounded-full animate-spin"></div>
+<div class="text-on-surface-variant font-body-sm">데이터를 불러오는 중입니다.</div>
+</div>
+<img class="w-full h-full object-cover opacity-80" data-alt="A highly detailed professional candlestick stock market chart displayed on a dark mode financial dashboard. The background is a deep navy blue, with glowing green and red candles indicating price movements. Thin grid lines and technical indicators like moving averages in subtle cyan and violet overlay the price action. The aesthetic is clean, precise, and analytical." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZbCrES1pR6wN1ewLKJgLF29_8juirwi35Ivl8mYqIKo1CKuuK5fhuzD4MNUnJXUaWfOy2Oi123IsAs1kFZPlsnMCZaFSjiha7bl99_5M3BxpymIzISjyX1DsZCnJth4ekIbZ2wJb2pTJ6_8fRj_3vXcUXgurUL3OaIXjiAtCyJd9u-WZIIAYN0XZouCTl3KtMjOvzpv1G3aN4-ie59pxJnK_ygMR0If112MbXyrIVjzt7lSef7bDdCiVwAVFAw0ag09MRba0rVDE">
+<!-- Interactive overlay for Demo -->
+<button class="absolute bottom-4 right-4 bg-surface-container-highest px-4 py-2 rounded-full border border-outline-variant text-body-sm text-on-surface-variant hover:text-on-surface transition-all" onclick="toggleLoading()">
+                                시뮬레이션: 데이터 로딩
+                            </button>
+</div>
+</div>
+</div>
+<!-- Right Column: News Section -->
+<aside class="col-span-12 lg:col-span-4 space-y-gutter">
+<div class="bg-surface-container rounded-xl border border-outline-variant flex flex-col h-full">
+<div class="p-gutter border-b border-outline-variant flex justify-between items-center">
+<h3 class="font-headline-sm text-on-surface">최신 뉴스</h3>
+<button class="text-secondary text-xs hover:underline">모두 보기</button>
+</div>
+<div class="flex-1 overflow-y-auto divide-y divide-outline-variant/30">
+<!-- News Item 1 -->
+<div class="p-gutter hover:bg-surface-container-highest transition-colors cursor-pointer group">
+<div class="text-on-surface-variant text-xs mb-1 flex items-center gap-2">
+<span class="font-bold">Bloomberg</span>
+<span class="">•</span>
+<span class="">2시간 전</span>
+</div>
+<h4 class="text-on-surface font-body-lg font-semibold group-hover:text-secondary transition-colors mb-2">Apple introduces new AI-powered features for institutional trading analytics.</h4>
+<p class="text-on-surface-variant text-xs line-clamp-2">애플은 새로운 AI 분석 기능을 공개하며 시장 전문가들의 기대를 모으고 있습니다...</p>
+</div>
+<!-- News Item 2 -->
+<div class="p-gutter hover:bg-surface-container-highest transition-colors cursor-pointer group">
+<div class="text-on-surface-variant text-xs mb-1 flex items-center gap-2">
+<span class="font-bold">Reuters</span>
+<span class="">•</span>
+<span class="">4시간 전</span>
+</div>
+<h4 class="text-on-surface font-body-lg font-semibold group-hover:text-secondary transition-colors mb-2">Global chip supply chain stabilizes as NVDA increases production.</h4>
+<p class="text-on-surface-variant text-xs line-clamp-2">엔비디아의 생산량 증대로 인해 글로벌 반도체 공급망이 점차 안정세를 찾고 있습니다.</p>
+</div>
+<!-- News Item 3 -->
+<div class="p-gutter hover:bg-surface-container-highest transition-colors cursor-pointer group">
+<div class="text-on-surface-variant text-xs mb-1 flex items-center gap-2">
+<span class="font-bold">CNBC</span>
+<span class="">•</span>
+<span class="">6시간 전</span>
+</div>
+<h4 class="text-on-surface font-body-lg font-semibold group-hover:text-secondary transition-colors mb-2">Federal Reserve hints at potential rate pause in next quarter.</h4>
+<p class="text-on-surface-variant text-xs line-clamp-2">연준은 다음 분기 금리 동결 가능성을 시사하며 시장에 긍정적인 신호를 보냈습니다.</p>
+</div>
+<!-- News Item 4 -->
+<div class="p-gutter hover:bg-surface-container-highest transition-colors cursor-pointer group">
+<div class="text-on-surface-variant text-xs mb-1 flex items-center gap-2">
+<span class="font-bold">EquiDash Labs</span>
+<span class="">•</span>
+<span class="">8시간 전</span>
+</div>
+<h4 class="text-on-surface font-body-lg font-semibold group-hover:text-secondary transition-colors mb-2">Quantitative Analysis: Tech sector remains resilient amidst volatility.</h4>
+<p class="text-on-surface-variant text-xs line-clamp-2">최근의 시장 변동성에도 불구하고 기술 섹터는 여전히 강한 회복력을 보여주고 있습니다.</p>
+</div>
+<!-- News Item 5 -->
+<div class="p-gutter hover:bg-surface-container-highest transition-colors cursor-pointer group">
+<div class="text-on-surface-variant text-xs mb-1 flex items-center gap-2">
+<span class="font-bold">MarketWatch</span>
+<span class="">•</span>
+<span class="">10시간 전</span>
+</div>
+<h4 class="text-on-surface font-body-lg font-semibold group-hover:text-secondary transition-colors mb-2">Tesla's expansion in Asian markets drives stock recovery.</h4>
+<p class="text-on-surface-variant text-xs line-clamp-2">테슬라의 아시아 시장 확장 전략이 주가 반등의 주요 원인으로 분석됩니다.</p>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+</div>
+<!-- Mobile Bottom Navigation -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-surface-container border-t border-outline-variant flex items-center justify-around z-50">
+<button class="flex flex-col items-center gap-1 text-secondary">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-[10px]">Overview</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="account_balance">account_balance</span>
+<span class="text-[10px]">Portfolio</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="text-[10px]">Analysis</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="newspaper">newspaper</span>
+<span class="text-[10px]">News</span>
+</button>
+</nav>
+<script>
+        function toggleLoading() {
+            const overlay = document.getElementById('loading-overlay');
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+            overlay.classList.add('opacity-100');
+            
+            setTimeout(() => {
+                overlay.classList.add('opacity-0', 'pointer-events-none');
+                overlay.classList.remove('opacity-100');
+            }, 3000);
+        }
+
+        // Initialize state
+        window.onload = () => {
+            // Subtle entrance animations
+            console.log("EquiDash Terminal Online");
+        }
+    </script>
+
+
+</body></html>
