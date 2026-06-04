@@ -43,5 +43,6 @@ yarn-error.log*
 
 # pages build temp
 /app/_api_server_backup
+/app/_api_bak
 /.pages-publish
 /out
