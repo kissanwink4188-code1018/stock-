@@ -109,7 +109,12 @@ git push -u origin main
 
 ### 8-3. GitHub Pages (웹 화면 배포)
 
-저장소 **Settings → Pages → Build and deployment → GitHub Actions** 로 설정하면 `main` push 시 앱 UI가 배포됩니다.
+`main`에 push하면 Actions가 **`gh-pages` 브랜치**에 앱을 올립니다. **아래 설정을 한 번만** 해주세요.
+
+1. https://github.com/kissanwink4188-code1018/stock-/settings/pages
+2. **Build and deployment → Source:** `Deploy from a branch`
+3. **Branch:** `gh-pages` / **`/ (root)`** → Save
+4. Actions 탭에서 **Deploy GitHub Pages** 워크플로가 ✅ 인지 확인
 
 - **접속 URL:** https://kissanwink4188-code1018.github.io/stock-/
 - GitHub Pages는 **정적 호스팅**이라 Finnhub 실시간 API는 동작하지 않고, **상위 50종 검색 + 샘플 시세·뉴스 + Stitch HTML 미리보기**가 표시됩니다.

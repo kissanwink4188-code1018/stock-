@@ -48,7 +48,32 @@ try {
     process.exit(1);
   }
 
-  writeFileSync(path.join(outDir, ".nojekyll"), "");
+  const publishDir = preparePublishDir(root, outDir);
+  writeFileSync(path.join(publishDir, ".nojekyll"), "");
+  console.log(`Pages publish dir ready: ${publishDir}`);
 } finally {
   restoreApi();
+}
+
+function preparePublishDir(root, outDir) {
+  const publishDir = path.join(root, ".pages-publish");
+  const nested = path.join(outDir, "stock-");
+
+  rmSync(publishDir, { recursive: true, force: true });
+
+  if (existsSync(nested)) {
+    cpSync(nested, publishDir, { recursive: true });
+    const nextAtRoot = path.join(outDir, "_next");
+    if (existsSync(nextAtRoot)) {
+      cpSync(nextAtRoot, path.join(publishDir, "_next"), { recursive: true });
+    }
+    const stitchDir = path.join(outDir, "stitch");
+    if (existsSync(stitchDir)) {
+      cpSync(stitchDir, path.join(publishDir, "stitch"), { recursive: true });
+    }
+  } else {
+    cpSync(outDir, publishDir, { recursive: true });
+  }
+
+  return publishDir;
 }

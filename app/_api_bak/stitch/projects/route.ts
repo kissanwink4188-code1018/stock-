@@ -1,8 +1,16 @@
 import { listStitchProjects, StitchConfigError } from "@/lib/stitch";
-import type { ApiErrorBody, StitchProjectsPayload } from "@/lib/types";
+import type { ApiErrorBody } from "@/lib/types";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
+
+export type StitchProjectsPayload = {
+  projects: Array<{
+    id: string;
+    title: string;
+    thumbnailUrl: string | null;
+  }>;
+};
 
 export async function GET(): Promise<NextResponse<StitchProjectsPayload | ApiErrorBody>> {
   try {

@@ -1,7 +1,7 @@
 "use client";
 
-import type { StitchProjectsPayload } from "@/app/api/stitch/projects/route";
-import type { StitchScreensPayload } from "@/app/api/stitch/screens/route";
+import { isStaticExport } from "@/lib/site";
+import type { StitchProjectsPayload, StitchScreensPayload } from "@/lib/types";
 import { MaterialIcon } from "@/components/equidash/MaterialIcon";
 import {
   equidashHeading,
@@ -81,6 +81,14 @@ export function StitchScreensGallery({ autoOpenFirstScreen = false }: Props) {
   );
 
   useEffect(() => {
+    if (isStaticExport) {
+      setLoadingProjects(false);
+      setMessage(
+        "GitHub Pages에서는 Stitch API를 사용할 수 없습니다. 메인 화면의 Stitch 미리보기를 확인하거나 로컬에서 npm run dev를 실행하세요.",
+      );
+      return;
+    }
+
     let cancelled = false;
 
     const loadProjects = async () => {

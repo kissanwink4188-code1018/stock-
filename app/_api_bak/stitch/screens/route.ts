@@ -1,8 +1,21 @@
 import { listStitchScreens, parseScreenIdFromName, StitchConfigError } from "@/lib/stitch";
-import type { ApiErrorBody, StitchScreensPayload } from "@/lib/types";
+import type { ApiErrorBody } from "@/lib/types";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
+
+export type StitchScreensPayload = {
+  projectId: string;
+  screens: Array<{
+    id: string;
+    title: string;
+    screenshotUrl: string | null;
+    htmlAvailable: boolean;
+    width: string | null;
+    height: string | null;
+    deviceType: string | null;
+  }>;
+};
 
 export async function GET(req: Request): Promise<NextResponse<StitchScreensPayload | ApiErrorBody>> {
   try {

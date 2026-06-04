@@ -38,3 +38,24 @@ export type SearchPayload = {
 export type ApiErrorBody = {
   error: string;
 };
+
+export type StitchProjectsPayload = {
+  projects: Array<{
+    id: string;
+    title: string;
+    thumbnailUrl: string | null;
+  }>;
+};
+
+export type StitchScreensPayload = {
+  projectId: string;
+  screens: Array<{
+    id: string;
+    title: string;
+    screenshotUrl: string | null;
+    htmlAvailable: boolean;
+    width: string | null;
+    height: string | null;
+    deviceType: string | null;
+  }>;
+};
